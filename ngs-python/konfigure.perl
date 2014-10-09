@@ -654,11 +654,11 @@ if ($OS ne 'win') {
 
     push (@c_arch,  "# directory rules" );
     if ($PKG{LNG} eq 'C') {
-        push (@c_arch,  "\$(BINDIR) \$(LIBDIR) \$(ILIBDIR) \$(OBJDIR) \$(INST_LIBDIR) \$(INST_LIBDIR)\$(BITS):\n"
+        push(@c_arch,  "\$(BINDIR) \$(LIBDIR) \$(ILIBDIR) \$(OBJDIR) \$(INST_LIBDIR) \$(INST_LIBDIR)\$(BITS):\n"
                      . "\tmkdir -p \$@" );
     } elsif ($PKG{LNG} eq 'JAVA') {
         # test if we have jni header path
-        push (@c_arch,  "\$(LIBDIR) \$(CLSDIR) \$(INST_JARDIR):\n\tmkdir -p \$@" );
+        push(@c_arch,  "\$(LIBDIR) \$(CLSDIR) \$(INST_JARDIR):\n\tmkdir -p \$@")
     }
     push (@c_arch,  "" );
 
@@ -691,6 +691,7 @@ if ($OS ne 'win') {
     push (@c_arch, "\t      false;                                         \\");
     push (@c_arch, "\t  fi");
     push (@c_arch, '');
+
     push (@c_arch,
         '$(INST_LIBDIR)$(BITS)/%.$(VERSION_SHLX): $(LIBDIR)/%.$(VERSION_SHLX)');
     push (@c_arch, "\t@ echo -n \"installing '\$(\@F)'... \"");
@@ -701,6 +702,21 @@ if ($OS ne 'win') {
     push (@c_arch, "\t      ln -s \$(subst \$(VERSION),\$(MAJVERS),\$(\@F)) \$(subst \$(VERSION_SHLX),\$(SHLX),\$\@) ; \\");
     push (@c_arch, "\t      cp -v \$(LIBDIR)/\$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(INST_LIBDIR)\$(BITS)/ ; \\");
     push (@c_arch, "\t      ln -vfs \$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(INST_LIBDIR)\$(BITS)/\$(subst .\$(VERSION_SHLX),-static.\$(LIBX),\$(\@F)) ; \\");
+    push (@c_arch, "\t      echo success;                                  \\");
+    push (@c_arch, "\t  else                                               \\");
+    push (@c_arch, "\t      echo failure;                                  \\");
+    push (@c_arch, "\t      false;                                         \\");
+    push (@c_arch, "\t  fi");
+    push (@c_arch, '');
+
+    push (@c_arch,
+        '$(INST_BINDIR)/%$(VERSION_EXEX): $(BINDIR)/%$(VERSION_EXEX)');
+    push (@c_arch, "\t@ echo -n \"installing '\$(\@F)'... \"");
+    push (@c_arch, "\t@ if cp \$^ \$\@ && chmod 755 \$\@;                  \\");
+    push (@c_arch, "\t  then                                               \\");
+    push (@c_arch, "\t      rm -f \$(subst \$(VERSION),\$(MAJVERS),\$\@) \$(subst \$(VERSION_EXEX),\$(EXEX),\$\@) ; \\");
+    push (@c_arch, "\t      ln -s \$(\@F) \$(subst \$(VERSION),\$(MAJVERS),\$\@); \\");
+    push (@c_arch, "\t      ln -s \$(subst \$(VERSION),\$(MAJVERS),\$(\@F)) \$(subst \$(VERSION_EXEX),\$(EXEX),\$\@) ; \\");
     push (@c_arch, "\t      echo success;                                  \\");
     push (@c_arch, "\t  else                                               \\");
     push (@c_arch, "\t      echo failure;                                  \\");
