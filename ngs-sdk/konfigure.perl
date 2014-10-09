@@ -697,11 +697,11 @@ if ($OS ne 'win') {
     push (@c_arch, "\t@ echo -n \"installing '\$(\@F)'... \"");
     push (@c_arch, "\t@ if cp \$^ \$\@ && chmod 755 \$\@;                  \\");
     push (@c_arch, "\t  then                                               \\");
-    push (@c_arch, "\t      rm -f \$(subst \$(VERSION),\$(MAJVERS),\$\@) \$(subst \$(VERSION_SHLX),\$(SHLX),\$\@) ; \\");
+    push (@c_arch, "\t      rm -f \$(subst \$(VERSION),\$(MAJVERS),\$\@) \$(subst \$(VERSION_SHLX),\$(SHLX),\$\@) \$(subst .\$(VERSION_SHLX),-static.\$(LIBX),\$\@); \\");
     push (@c_arch, "\t      ln -s \$(\@F) \$(subst \$(VERSION),\$(MAJVERS),\$\@); \\");
     push (@c_arch, "\t      ln -s \$(subst \$(VERSION),\$(MAJVERS),\$(\@F)) \$(subst \$(VERSION_SHLX),\$(SHLX),\$\@) ; \\");
-    push (@c_arch, "\t      cp -v \$(LIBDIR)/\$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(INST_LIBDIR)\$(BITS)/ ; \\");
-    push (@c_arch, "\t      ln -vfs \$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(INST_LIBDIR)\$(BITS)/\$(subst .\$(VERSION_SHLX),-static.\$(LIBX),\$(\@F)) ; \\");
+    push (@c_arch, "\t      cp \$(LIBDIR)/\$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(INST_LIBDIR)\$(BITS)/ ; \\");
+    push (@c_arch, "\t      ln -s \$(subst \$(VERSION_SHLX),\$(VERSION_LIBX),\$(\@F)) \$(subst .\$(VERSION_SHLX),-static.\$(LIBX),\$\@) ; \\");
     push (@c_arch, "\t      echo success;                                  \\");
     push (@c_arch, "\t  else                                               \\");
     push (@c_arch, "\t      echo failure;                                  \\");

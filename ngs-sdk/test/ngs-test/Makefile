@@ -52,7 +52,7 @@ TEST_NGS_OBJ = \
 TEST_NGS_LIB = \
     -ltest_engine \
     -lngs-bind-c++ \
-    -lngs-disp \
+    -lngs-sdk \
 
 $(BINDIR)/test-ngs$(EXEX): $(TEST_NGS_OBJ) 
 	$(LP) $(DBG) $(OPT) -o $@ $^ -L$(LIBDIR) -L$(ILIBDIR) $(TEST_NGS_LIB) 

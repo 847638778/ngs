@@ -90,8 +90,7 @@ $(OBJDIR)ngs-bind-python: $(ILIBDIR)/$(LPFX)ngs-bind-python.$(LIBX)
 
 # sub-libraries to link against
 SDK_LIB =        \
-	-L$(ILIBDIR) \
-	-lngs-disp
+	$(ILIBDIR)/$(LPFX)ngs-disp.$(LIBX)
 
 SDK_XLIBS =                            \
 	$(OBJDIR)ngs-bind-java             \
@@ -101,7 +100,10 @@ SDK_DEPS =                             \
 	$(SDK_XLIBS)                       \
 	$(ILIBDIR)/$(LPFX)ngs-disp.$(LIBX)
 
-$(LIBDIR)/$(LPFX)ngs-sdk.$(VERSION_SHLX): $(SDK_DEPS)
+$(LIBDIR)/$(LPFX)ngs-sdk.$(VERSION_LIBX): $(SDK_DEPS)
+	$(AR) -T $(LIBDIR)/$(LPFX)ngs-sdk.$(VERSION_LIBX) `cat $(addsuffix /manifest,$(SDK_XLIBS))` $(SDK_LIB)
+
+$(LIBDIR)/$(LPFX)ngs-sdk.$(VERSION_SHLX): $(LIBDIR)/$(LPFX)ngs-sdk.$(VERSION_LIBX)
 	$(LP) $(DBG) $(OPT) -shared -o $@ $(SONAME) `cat $(addsuffix /manifest,$(SDK_XLIBS))` $(SDK_LIB)
 	chmod +x,go-w $@
 
@@ -121,5 +123,5 @@ INTERNAL_LIBS =                             \
 	$(ILIBDIR)/$(LPFX)ngs-bind-python.$(LIBX)
 
 $(INTERNAL_LIBS):
-	@ echo Missing $@. Please run `make`
+	@ echo Missing $@. Please run 'make'
 	@ false
