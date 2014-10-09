@@ -163,12 +163,12 @@ println $OSTYPE unless ($AUTORUN);
 my $TARGDIR = File::Spec->catdir($OUTDIR, $PACKAGE);
 $TARGDIR = expand($OPT{'build'}) if ($OPT{'build'});
 
-my $BUILD = "rel";
+my $BUILD = 'rel';
 
 # parse command line
 $BUILD = $OPT{'BUILD'} if ($OPT{'BUILD'});
-$BUILD = "dbg" if ($OPT{'with-debug'});
-$BUILD = "rel" if ($OPT{'without-debug'});
+$BUILD = 'dbg' if ($OPT{'with-debug'});
+$BUILD = 'rel' if ($OPT{'without-debug'});
 
 my $BUILD_TYPE = "release";
 $BUILD_TYPE = "debug" if ( $BUILD eq "dbg" );
@@ -888,16 +888,17 @@ sub find_in_dir {
     if ($lib || $ilib) {
         print "\n\t" if ($nl && !$AUTORUN);
         print "libraries... " unless ($AUTORUN);
-        my $builddir = File::Spec->catdir($dir, $OS, $TOOLS, $ARCH, $BUILD);
-        my $libdir  = File::Spec->catdir($builddir, 'lib');
-        my $ilibdir = File::Spec->catdir($builddir, 'ilib');
         if ($lib) {
+            my $builddir = File::Spec->catdir($dir, $OS, $TOOLS, $ARCH, $BUILD);
+            my $libdir  = File::Spec->catdir($builddir, 'lib');
+            my $ilibdir = File::Spec->catdir($builddir, 'ilib');
             my $f = File::Spec->catdir($libdir, $lib);
             print "\n\t\tchecking $f\n\t" if ($OPT{'debug'});
+            my $found;
             if (-e $f) {
                 $found_lib = $libdir;
                 if ($ilib) {
-                    $f = File::Spec->catdir($ilibdir, $ilib);
+                    my $f = File::Spec->catdir($ilibdir, $ilib);
                     print "\tchecking $f\n\t" if ($OPT{'debug'});
                     if (-e $f) {
                         println 'yes';
@@ -909,17 +910,41 @@ sub find_in_dir {
                 } else {
                     println 'yes';
                 }
-            } else {
-                $libdir = File::Spec->catdir($dir, 'lib' . $BITS);
-                undef $ilibdir;
-                $f = File::Spec->catdir($libdir, $lib);
-                print "\t\tchecking $f\n\t" if ($OPT{'debug'});
+                ++$found;
+            }
+            if (! $found) {
+                my $libdir = File::Spec->catdir($dir, 'lib' . $BITS);
+                my $f = File::Spec->catdir($libdir, $lib);
+                print "\tchecking $f\n\t" if ($OPT{'debug'});
                 if (-e $f) {
                     println 'yes';
                     $found_lib = $libdir;
-                } else {
-                    undef $libdir;
-                    print "\t" if ($OPT{'debug'});
+                    ++$found;
+                }
+            }
+            if (! $found) {
+                my $builddir = File::Spec->catdir
+                    ($dir, $OS, $TOOLS, $ARCH, reverse_build($BUILD));
+                my $libdir  = File::Spec->catdir($builddir, 'lib');
+                my $ilibdir = File::Spec->catdir($builddir, 'ilib');
+                my $f = File::Spec->catdir($libdir, $lib);
+                print "\tchecking $f\n\t" if ($OPT{'debug'});
+                if (-e $f) {
+                    $found_lib = $libdir;
+                    if ($ilib) {
+                        my $f = File::Spec->catdir($ilibdir, $ilib);
+                        print "\tchecking $f\n\t" if ($OPT{'debug'});
+                        if (-e $f) {
+                            println 'yes';
+                            $found_ilib = $ilibdir;
+                        } else {
+                            println 'no' unless ($AUTORUN);
+                            return;
+                        }
+                    } else {
+                        println 'yes';
+                    }
+                    ++$found;
                 }
             }
         }
@@ -932,6 +957,17 @@ sub find_in_dir {
         ++$nl;
     }
     return ($found_inc, $found_lib, $found_ilib);
+}
+
+sub reverse_build {
+    ($_) = @_;
+    if ($_ eq 'rel') {
+        return 'dbg';
+    } elsif ($_ eq 'dbg') {
+        return 'rel';
+    } else {
+        die $_;
+    }
 }
 
 ################################################################################
